@@ -166,6 +166,7 @@
                         <?m2e execute onConfiguration,onIncremental?>
                         <goals>
                             <goal>generate</goal>
+                            <goal>generate-test</goal>
                         </goals>
                     </execution>
                 </executions>
