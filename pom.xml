@@ -21,6 +21,7 @@
         <protobuf.version>4.28.0</protobuf.version>
         <grpc.version>1.60.0</grpc.version>
         <lombok.version>1.18.38</lombok.version>
+        <resilience4j.version>2.2.0</resilience4j.version>
     </properties>
     
     <dependencies>
@@ -52,6 +53,20 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-core</artifactId>
+        </dependency>
+        
+        <!-- Resilience4j Spring Boot Starter -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        
+        <!-- Resilience4j Rate Limiter -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-ratelimiter</artifactId>
+            <version>${resilience4j.version}</version>
         </dependency>
         
         <dependency>
