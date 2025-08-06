@@ -1,5 +1,5 @@
 
-package com.apiinabox;
+package com.apiinabox.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jackson.datatype.protobuf.ProtobufModule;
@@ -12,7 +12,8 @@ import io.swagger.v3.core.jackson.ModelResolver;
 @Configuration
 public class ApplicationConfig {
 
-    //This is to fix the issue with the protobuf module and the swagger ui endless loading
+    // This is to fix the issue with the protobuf module and the swagger ui endless
+    // loading
     @Bean
     public ObjectMapper objectMapper() {
         final ObjectMapper objectMapper = new ObjectMapper();
