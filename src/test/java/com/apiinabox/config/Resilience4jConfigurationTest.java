@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestPropertySource(properties = {
+    "app.authorization-enabled=false",
     "app.rate-limiting.enabled=true",
     "resilience4j.ratelimiter.instances.default-api.limitForPeriod=10",
     "resilience4j.ratelimiter.instances.accounts-api.limitForPeriod=5",
@@ -131,18 +132,18 @@ class Resilience4jConfigurationTest {
         }
 
         @Test
-        @DisplayName("Should use default configuration for unconfigured instances")
-        void shouldUseDefaultConfigurationForUnconfiguredInstances() {
-            RateLimiter unconfiguredRateLimiter = rateLimiterRegistry.rateLimiter("unconfigured-api");
-            RateLimiterConfig config = unconfiguredRateLimiter.getRateLimiterConfig();
+        @DisplayName("Should use default configuration for non-configured instances")
+        void shouldUseDefaultConfigurationForNonConfiguredInstances() {
+            RateLimiter nonConfiguredRateLimiter = rateLimiterRegistry.rateLimiter("non-configured-api");
+            RateLimiterConfig config = nonConfiguredRateLimiter.getRateLimiterConfig();
             
             // Should use default configuration values
             assertEquals(10, config.getLimitForPeriod(), 
-                "Unconfigured instance should use default limit");
+                "Non-configured instance should use default limit");
             assertEquals(Duration.ofMinutes(1), config.getLimitRefreshPeriod(),
-                "Unconfigured instance should use default refresh period");
+                "Non-configured instance should use default refresh period");
             assertEquals(Duration.ZERO, config.getTimeoutDuration(),
-                "Unconfigured instance should use default timeout");
+                "Non-configured instance should use default timeout");
         }
     }
 }

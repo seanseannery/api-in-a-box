@@ -16,7 +16,7 @@ This feature implements API rate limiting functionality to protect the API-in-a-
 2. WHEN rate limits are configured THEN the system SHALL support per minute time windows 
 3. WHEN rate limits are updated THEN the system SHALL apply new limits without requiring application restart
 4. IF no rate limit is configured for an endpoint THEN the system SHALL apply a default rate limit which is configured in a property file
-5. The system SHALL use resiliance4j library when possible to implement all ratelimiting features
+5. The system SHALL use resilience4j library when possible to implement all ratelimiting features and not create unnecessary wrapper classes
 
 ### Requirement 2
 

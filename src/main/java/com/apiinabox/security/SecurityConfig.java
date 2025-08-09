@@ -1,6 +1,7 @@
 package com.apiinabox.security;
 
 import com.apiinabox.config.AuthorizationConfig;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,19 +28,19 @@ public class SecurityConfig {
                     .requestMatchers("/api/books/**").hasRole("USER")
                     .anyRequest().permitAll()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                    .jwt(jwt -> jwt.decoder(jwtDecoder()))
-                );
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt());
         } else {
             http
                 .authorizeHttpRequests(auth -> auth
                     .anyRequest().permitAll()
-                );
+                )
+                .csrf(csrf -> csrf.disable()); // Add this for tests
         }
         return http.build();
     }
 
     @Bean
+    @ConditionalOnProperty(name = "app.authorization-enabled", havingValue = "true")
     public JwtDecoder jwtDecoder() {
         // Replace with your OAuth2 provider's JWK Set URI
         String jwkSetUri = "https://your-oauth2-provider/.well-known/jwks.json";

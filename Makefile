@@ -12,6 +12,7 @@ all: build run
 # Build the project
 build:
 	@echo "Building the project..."
+	@mvn protobuf:generate
 	@mvn clean package
 
 # Build Docker image
@@ -43,6 +44,7 @@ docker-stop:
 	@docker-compose -f infra/docker-compose.yml down
 
 # Help command
+# see infra/local-setup.mk for setup command implementation and code
 help:
 	@echo "Available commands:"
 	@echo "  make setup         - Setup development environment (macOS)"

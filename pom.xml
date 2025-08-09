@@ -99,7 +99,7 @@
         <dependency>
             <groupId>com.hubspot.jackson</groupId>
             <artifactId>jackson-datatype-protobuf</artifactId>
-            <version>0.9.13</version>
+            <version>0.9.15</version>
         </dependency>
 
         <!-- gRPC -->
@@ -151,6 +151,26 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>me.fabriciorby</groupId>
+                        <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                        <version>1.1.0</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <reportFormat>plain</reportFormat>
+                    <consoleOutputReporter>
+                        <disable>true</disable>
+                    </consoleOutputReporter>
+                    <statelessTestsetInfoReporter  implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporterUnicode"/>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
                 <groupId>io.github.ascopes</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>3.0.0</version>
@@ -166,7 +186,6 @@
                         <?m2e execute onConfiguration,onIncremental?>
                         <goals>
                             <goal>generate</goal>
-                            <goal>generate-test</goal>
                         </goals>
                     </execution>
                 </executions>
