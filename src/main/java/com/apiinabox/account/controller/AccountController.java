@@ -1,7 +1,7 @@
 package com.apiinabox.account.controller;
 
 import com.apiinabox.account.api.AccountAPI;
-import com.apiinabox.account.api.dto.AccountProto;
+import com.apiinabox.account.api.dto.*;
 import com.apiinabox.account.model.Account;
 import com.apiinabox.account.model.AccountMapper;
 import com.apiinabox.account.repository.AccountRepository;
@@ -26,40 +26,39 @@ public class AccountController implements AccountAPI {
     }
 
     @Override
-    public ResponseEntity<AccountProto.Account> createAccount(AccountProto.Account accountProto) {
+    public ResponseEntity<AccountDTO> createAccount(AccountDTO accountProto) {
         Account account = accountMapper.toModel(accountProto);
         Account savedAccount = accountRepository.save(account);
-        return ResponseEntity.ok(accountMapper.toProto(savedAccount));
+        return ResponseEntity.ok(accountMapper.toDTO(savedAccount));
     }
 
     @Override
-    public ResponseEntity<AccountProto.Account> getAccount(String id) {
+    public ResponseEntity<AccountDTO> getAccount(String id) {
         Account account = accountRepository.findById(id);
         if (account == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(accountMapper.toProto(account));
+        return ResponseEntity.ok(accountMapper.toDTO(account));
     }
 
     @Override
-    public ResponseEntity<AccountProto.AccountList> getAllAccounts() {
+    public ResponseEntity< List<AccountDTO> > getAllAccounts() {
         List<Account> accounts = accountRepository.findAll();
-        AccountProto.AccountList.Builder builder = AccountProto.AccountList.newBuilder();
-        accounts.stream()
-                .map(accountMapper::toProto)
-                .forEach(builder::addAccounts);
-        return ResponseEntity.ok(builder.build());
+        List<AccountDTO> accountDTOs = accounts.stream()
+                .map(accountMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(accountDTOs);
     }
 
     @Override
-    public ResponseEntity<AccountProto.Account> updateAccount(String id, AccountProto.Account accountProto) {
+    public ResponseEntity<AccountDTO> updateAccount(String id, AccountDTO accountProto) {
         Account account = accountMapper.toModel(accountProto);
         account.setId(id);
         Account updatedAccount = accountRepository.update(account);
         if (updatedAccount == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(accountMapper.toProto(updatedAccount));
+        return ResponseEntity.ok(accountMapper.toDTO(updatedAccount));
     }
 
     @Override
@@ -69,7 +68,7 @@ public class AccountController implements AccountAPI {
     }
 
     @Override
-    public ResponseEntity<Void> setPassword(String id, AccountProto.SetPasswordRequest request) {
+    public ResponseEntity<Void> setPassword(String id, SetPasswordRequestDTO request) {
         Account account = accountRepository.findById(id);
         if (account == null) {
             return ResponseEntity.notFound().build();
@@ -83,24 +82,24 @@ public class AccountController implements AccountAPI {
     }
 
     @Override
-    public ResponseEntity<AccountProto.AuthenticateResponse> authenticate(AccountProto.AuthenticateRequest request) {
+    public ResponseEntity<AuthenticationResponseDTO> authenticate(AuthenticationRequestDTO request) {
         List<Account> accounts = accountRepository.findAll();
         Account account = accounts.stream()
-                .filter(a -> a.getUsername().equals(request.getUsername()))
+                .filter(a -> a.getUsername().equals(request.getUserName()))
                 .findFirst()
                 .orElse(null);
 
         if (account == null) {
-            return ResponseEntity.ok(AccountProto.AuthenticateResponse.newBuilder()
-                    .setAuthenticated(false)
+            return ResponseEntity.ok(AuthenticationResponseDTO.builder()
+                    .authenticated(false)
                     .build());
         }
 
         boolean authenticated = passwordService.verifyPassword(request.getPassword(), account.getPasswordHash());
         
-        return ResponseEntity.ok(AccountProto.AuthenticateResponse.newBuilder()
-                .setAuthenticated(authenticated)
-                .setAccountId(authenticated ? account.getId() : "")
+        return ResponseEntity.ok(AuthenticationResponseDTO.builder()
+                .authenticated(authenticated)
+                .accountId(authenticated ? account.getId() : "")
                 .build());
     }
 } 

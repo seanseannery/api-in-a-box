@@ -1,34 +1,38 @@
 package com.apiinabox.account.api;
 
-import com.apiinabox.account.api.dto.AccountProto;
+import com.apiinabox.account.api.dto.*;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/accounts")
 public interface AccountAPI {
+
     @PostMapping
-    ResponseEntity<AccountProto.Account> createAccount(@RequestBody AccountProto.Account accountProto);
+    public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountDTO account);
 
     @GetMapping("/{id}")
-    ResponseEntity<AccountProto.Account> getAccount(@PathVariable String id);
+    public ResponseEntity<AccountDTO> getAccount(@PathVariable String id);
 
     @GetMapping
-    ResponseEntity<AccountProto.AccountList> getAllAccounts();
+    public ResponseEntity<List<AccountDTO>> getAllAccounts();
 
     @PutMapping("/{id}")
-    ResponseEntity<AccountProto.Account> updateAccount(
+    public ResponseEntity<AccountDTO> updateAccount(
             @PathVariable String id,
-            @RequestBody AccountProto.Account accountProto);
+            @RequestBody AccountDTO accountProto);
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteAccount(@PathVariable String id);
+    public ResponseEntity<Void> deleteAccount(@PathVariable String id);
 
     @PostMapping("/{id}/password")
-    ResponseEntity<Void> setPassword(
+    public ResponseEntity<Void> setPassword(
             @PathVariable String id,
-            @RequestBody AccountProto.SetPasswordRequest request);
+            @RequestBody SetPasswordRequestDTO request);
 
     @PostMapping("/authenticate")
-    ResponseEntity<AccountProto.AuthenticateResponse> authenticate(
-            @RequestBody AccountProto.AuthenticateRequest request);
+    public ResponseEntity<AuthenticationResponseDTO> authenticate(
+            @RequestBody AuthenticationRequestDTO request);
 } 
