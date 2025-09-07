@@ -1,5 +1,3 @@
-# Include setup makefile
-include infra/local-setup.mk
 
 .PHONY: build run all docker-build docker-run docker-stop attach-docker docker-logs
 
@@ -24,6 +22,9 @@ docker-build:
 run: docker-build
 	@echo "Running the application in Docker..."
 	@PORT=$(PORT) docker-compose -f infra/docker-compose.yml up -d
+	@sleep 5
+	open-swagger
+	docker-logs
 
 # Show logs
 docker-logs:
@@ -42,6 +43,9 @@ docker-shell:
 docker-stop:
 	@echo "Stopping Docker containers..."
 	@docker-compose -f infra/docker-compose.yml down
+
+# Include setup makefile
+include infra/local-setup.mk
 
 # Help command
 # see infra/local-setup.mk for setup command implementation and code

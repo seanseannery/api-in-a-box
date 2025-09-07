@@ -18,7 +18,7 @@
     
     <properties>
         <java.version>24</java.version>
-        <protobuf.version>4.28.0</protobuf.version>
+        <protobuf.version>4.28.3</protobuf.version>
         <grpc.version>1.60.0</grpc.version>
         <lombok.version>1.18.38</lombok.version>
         <resilience4j.version>2.2.0</resilience4j.version>
@@ -99,7 +99,7 @@
         <dependency>
             <groupId>com.hubspot.jackson</groupId>
             <artifactId>jackson-datatype-protobuf</artifactId>
-            <version>0.9.15</version>
+            <version>0.9.18</version>
         </dependency>
 
         <!-- gRPC -->
