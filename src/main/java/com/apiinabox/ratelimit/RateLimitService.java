@@ -90,7 +90,7 @@ public class RateLimitService {
     }
     
     private RateLimiter getRateLimiter(String key, int limit) {
-        return rateLimiters.computeIfAbsent(key, k -> {
+        return rateLimiters.computeIfAbsent(key, _ -> {
             RateLimiterConfig config = RateLimiterConfig.custom()
                     .limitForPeriod(limit)
                     .limitRefreshPeriod(Duration.ofMinutes(1))
