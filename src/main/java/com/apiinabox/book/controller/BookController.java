@@ -50,10 +50,8 @@ public class BookController implements BookApi {
     }
 
     @Override
-
     public ResponseEntity<BookProto.Book> updateBook(String id, BookProto.Book bookProto, @AuthenticationPrincipal Jwt jwt) {
         Book book = bookMapper.toModel(bookProto);
-        book.setId(id);
         Book updatedBook = bookRepository.update(id, book);
         if (updatedBook == null) {
             return ResponseEntity.notFound().build();

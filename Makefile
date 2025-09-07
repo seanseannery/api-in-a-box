@@ -12,7 +12,7 @@ all: build run
 # Build the project
 build:
 	@echo "Building the project..."
-	@mvn protobuf:generate
+	@mvn protoc-jar:run
 	@mvn clean package
 
 # Build Docker image

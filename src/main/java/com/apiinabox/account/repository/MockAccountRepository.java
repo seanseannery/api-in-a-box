@@ -20,25 +20,41 @@ public class MockAccountRepository implements AccountRepository {
                 .email("john@example.com")
                 .fullName("John Doe")
                 .createdAt(LocalDateTime.now())
+                .passwordHash("hashed_password1")
+                .build());
+        accounts.add(Account.builder()
+                .id(UUID.randomUUID().toString())
+                .username("jane_doe")
+                .email("jane.doe@example.com")
+                .fullName("Jane Doe")
+                .createdAt(LocalDateTime.now())
+                .passwordHash("hashed_password2")
                 .build());
     }
 
     @Override
     public Account save(Account account) {
-        if (account.getId() == null) {
-            account.setId(UUID.randomUUID().toString());
-            account.setCreatedAt(LocalDateTime.now());
-            accounts.add(account);
+        if (account.id() == null) {
+            // Create a new account with generated ID and timestamp since records are immutable
+            Account newAccount = new Account(
+                UUID.randomUUID().toString(),
+                account.username(),
+                account.email(),
+                account.fullName(),
+                LocalDateTime.now(),
+                account.passwordHash()
+            );
+            accounts.add(newAccount);
+            return newAccount;
         } else {
-            update(account);
+            return update(account);
         }
-        return account;
     }
 
     @Override
     public Account findById(String id) {
         return accounts.stream()
-                .filter(account -> account.getId().equals(id))
+                .filter(account -> account.id().equals(id))
                 .findFirst()
                 .orElse(null);
     }
@@ -51,7 +67,7 @@ public class MockAccountRepository implements AccountRepository {
     @Override
     public Account update(Account account) {
         for (int i = 0; i < accounts.size(); i++) {
-            if (accounts.get(i).getId().equals(account.getId())) {
+            if (accounts.get(i).id().equals(account.id())) {
                 accounts.set(i, account);
                 return account;
             }
@@ -61,6 +77,6 @@ public class MockAccountRepository implements AccountRepository {
 
     @Override
     public void delete(String id) {
-        accounts.removeIf(account -> account.getId().equals(id));
+        accounts.removeIf(account -> account.id().equals(id));
     }
 } 

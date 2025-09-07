@@ -13,21 +13,25 @@ public class AccountMapper {
 
     public AccountProto.Account toProto(Account account) {
         return AccountProto.Account.newBuilder()
-                .setId(account.getId())
-                .setUsername(account.getUsername())
-                .setEmail(account.getEmail())
-                .setFullName(account.getFullName())
-                .setCreatedAt(account.getCreatedAt().format(DATE_TIME_FORMATTER))
+                .setId(account.id())
+                .setUsername(account.username())
+                .setEmail(account.email())
+                .setFullName(account.fullName())
+                .setCreatedAt(account.createdAt().format(DATE_TIME_FORMATTER))
+                .setPasswordHash(account.passwordHash())
                 .build();
     }
 
     public Account toModel(AccountProto.Account accountProto) {
-        return Account.builder()
-                .id(accountProto.getId())
-                .username(accountProto.getUsername())
-                .email(accountProto.getEmail())
-                .fullName(accountProto.getFullName())
-                .createdAt(LocalDateTime.parse(accountProto.getCreatedAt(), DATE_TIME_FORMATTER))
-                .build();
+        if (accountProto == null) {
+            return null;
+        }
+        return new Account(
+                accountProto.getId(),
+                accountProto.getUsername(),
+                accountProto.getEmail(),
+                accountProto.getFullName(),
+                LocalDateTime.parse(accountProto.getCreatedAt(), DATE_TIME_FORMATTER),
+                accountProto.getPasswordHash());
     }
 } 

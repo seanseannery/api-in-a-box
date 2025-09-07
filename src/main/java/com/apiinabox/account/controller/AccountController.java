@@ -54,7 +54,6 @@ public class AccountController implements AccountAPI {
     @Override
     public ResponseEntity<AccountProto.Account> updateAccount(String id, AccountProto.Account accountProto) {
         Account account = accountMapper.toModel(accountProto);
-        account.setId(id);
         Account updatedAccount = accountRepository.update(account);
         if (updatedAccount == null) {
             return ResponseEntity.notFound().build();
@@ -76,8 +75,15 @@ public class AccountController implements AccountAPI {
         }
 
         String hashedPassword = passwordService.hashPassword(request.getPassword());
-        account.setPasswordHash(hashedPassword);
-        accountRepository.update(account);
+        Account updatedAccount = Account.builder()
+                .id(account.id())
+                .username(account.username())
+                .email(account.email())
+                .fullName(account.fullName())
+                .createdAt(account.createdAt())
+                .passwordHash(hashedPassword)
+                .build();
+        accountRepository.update(updatedAccount);
         
         return ResponseEntity.ok().build();
     }
@@ -86,7 +92,7 @@ public class AccountController implements AccountAPI {
     public ResponseEntity<AccountProto.AuthenticateResponse> authenticate(AccountProto.AuthenticateRequest request) {
         List<Account> accounts = accountRepository.findAll();
         Account account = accounts.stream()
-                .filter(a -> a.getUsername().equals(request.getUsername()))
+                .filter(a -> a.username().equals(request.getUsername()))
                 .findFirst()
                 .orElse(null);
 
@@ -96,11 +102,11 @@ public class AccountController implements AccountAPI {
                     .build());
         }
 
-        boolean authenticated = passwordService.verifyPassword(request.getPassword(), account.getPasswordHash());
+        boolean authenticated = passwordService.verifyPassword(request.getPassword(), account.passwordHash());
         
         return ResponseEntity.ok(AccountProto.AuthenticateResponse.newBuilder()
                 .setAuthenticated(authenticated)
-                .setAccountId(authenticated ? account.getId() : "")
+                .setAccountId(authenticated ? account.id() : "")
                 .build());
     }
 } 

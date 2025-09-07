@@ -2,6 +2,7 @@
 FROM maven:3.9.11-eclipse-temurin-24 as build
 WORKDIR /app
 COPY pom.xml .
+RUN mvn verify clean --fail-never
 COPY src ./src
 RUN mvn clean package -DskipTests
 

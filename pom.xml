@@ -150,6 +150,7 @@
                 </configuration>
             </plugin>
 
+            <!-- make pretty test results output in console-->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M7</version>
@@ -169,27 +170,41 @@
                 </configuration>
             </plugin>
 
-
+            <!-- compile proto files and generate protobuf code. Every new domain's DTOs need to be added to the input directories -->
             <plugin>
-                <groupId>io.github.ascopes</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <protocVersion>${protobuf.version}</protocVersion>
-                    <sourceDirectories>
-                        <sourceDirectory>${project.basedir}/src/main/java/com/apiinabox/account/api/dto</sourceDirectory>
-                        <sourceDirectory>${project.basedir}/src/main/java/com/apiinabox/book/api/dto</sourceDirectory>
-                    </sourceDirectories>
-                </configuration>
+                <groupId>com.github.os72</groupId>
+                <artifactId>protoc-jar-maven-plugin</artifactId>
+                <version>3.11.4</version>
                 <executions>
                     <execution>
-                        <?m2e execute onConfiguration,onIncremental?>
+                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>generate</goal>
+                            <goal>run</goal>
                         </goals>
+                        <configuration>
+                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
+                            <addProtoSources>all</addProtoSources>
+                            <includeMavenTypes>direct</includeMavenTypes>
+                            <inputDirectories>
+                                <include>${project.basedir}/src/main/java/com/apiinabox/account/api/dto</include>
+                                <include>${project.basedir}/src/main/java/com/apiinabox/book/api/dto</include>
+                            </inputDirectories>
+                            <outputTargets>
+                                <outputTarget>
+                                        <type>java</type>
+                                        <outputDirectory>target/generated-sources/protobuf</outputDirectory>
+                                </outputTarget>
+                                <outputTarget>
+                                        <type>grpc-java</type>
+                                        <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}</pluginArtifact>
+                                </outputTarget>
+                            </outputTargets>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+
         </plugins>
     </build>
 </project> 

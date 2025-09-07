@@ -14,10 +14,10 @@ public class BookMapper {
             return null;
         }
         return BookProto.Book.newBuilder()
-            .setId(book.getId())
-            .setTitle(book.getTitle())
-            .setAuthor(book.getAuthor())
-            .setPublishedDate(book.getPublishedDate().format(DATE_FORMATTER))
+            .setId(book.id())
+            .setTitle(book.title())
+            .setAuthor(book.author())
+            .setPublishedDate(book.publishedDate().format(DATE_FORMATTER))
             .build();
     }
 
