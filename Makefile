@@ -4,13 +4,17 @@
 # Default port
 PORT ?= 8080
 
+# Point Maven at Temurin 25 if installed; otherwise fall back to existing JAVA_HOME
+TEMURIN25 := /Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home
+JAVA_HOME := $(shell [ -d "$(TEMURIN25)" ] && echo "$(TEMURIN25)" || echo "$(JAVA_HOME)")
+export JAVA_HOME
+
 # Default target
 all: build run
 
 # Build the project
 build:
 	@echo "Building the project..."
-	@mvn protoc-jar:run
 	@mvn clean package
 
 # Build Docker image

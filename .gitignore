@@ -1,3 +1,11 @@
-.DS_Store
+# Build artifacts
 target/*
-.vscode/*
+
+# IDE and AI Agent Specific Settings
+.idea/
+.vscode/
+.claude/worktrees
+.claude/settings.local.json
+
+# Macos BS
+**/.DS_Store

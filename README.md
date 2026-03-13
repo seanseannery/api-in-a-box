@@ -105,12 +105,17 @@ make docker-stop
 
 ### Development Commands
 ```bash
-make build         # Build the project with Maven
-make docker-build  # Build Docker image only
-make docker-shell  # Access running container shell
-make help          # Show all available commands
+	  make setup         - Setup development environment (macOS)
+	  make build         - Build the project
+	  make docker-build  - Build Docker image
+	  make run           - Build and run the application in Docker (8080)
+	  make docker-logs   - Show container logs
+	  make open-swagger  - Open Swagger UI in browser
+	  make docker-shell  - Attach to the running container's shell
+	  make docker-stop   - Stop Docker containers
+	  make all           - Clean, build and run the application (default)
+	  make help          - Show this help message"
 ```
-
 ## API Examples
 
 The project includes two example CRUD APIs:

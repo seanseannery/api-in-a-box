@@ -34,17 +34,14 @@ check-dependencies:
 			echo 'eval "$$(jenv init - bash)"' >> $(SHELL_CONFIG); \
 		fi; \
 	fi
-	@if ! command -v java &> /dev/null || ! java -version 2>&1 | grep -q "21"; then \
-		echo "Installing Java 24..."; \
-		brew install openjdk@24; \
-		echo "Linking Java 24..."; \
-		echo 'export PATH="/opt/homebrew/opt/openjdk@24/bin:$PATH"' >> $(SHELL_CONFIG); \
-		sudo ln -sfn /opt/homebrew/opt/openjdk@24/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-24.jdk; \
+	@if ! command -v java &> /dev/null || ! java -version 2>&1 | grep -q "version \"25"; then \
+		echo "Installing Java 25 (Temurin)..."; \
+		brew install --cask temurin@25; \
 		mkdir -p ~/.jenv/versions; \
-		jenv add /Library/Java/JavaVirtualMachines/openjdk-24.jdk/Contents/Home; \
-		jenv global 24; \
+		jenv add /Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home; \
+		jenv global 25; \
 		jenv enable-plugin export; \
-		echo "Java 24 installation complete. Please restart your terminal or run: source $(SHELL_CONFIG)"; \
+		echo "Java 25 installation complete. Please restart your terminal or run: source $(SHELL_CONFIG)"; \
 	fi
 	@if ! command -v mvn &> /dev/null; then \
 		echo "Installing Maven..."; \

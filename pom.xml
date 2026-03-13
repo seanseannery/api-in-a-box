@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.0</version>
+        <version>4.0.3</version>
         <relativePath/>
     </parent>
     
@@ -17,7 +17,7 @@
     <description>Spring Boot API Project</description>
     
     <properties>
-        <java.version>24</java.version>
+        <java.version>25</java.version>
         <protobuf.version>4.28.3</protobuf.version>
         <grpc.version>1.60.0</grpc.version>
         <lombok.version>1.18.38</lombok.version>
@@ -136,7 +136,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.14.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -170,35 +170,36 @@
                 </configuration>
             </plugin>
 
-            <!-- compile proto files and generate protobuf code. Every new domain's DTOs need to be added to the input directories -->
+            <!-- compile proto files and generate protobuf code. Add a new execution block for each new domain's dto directory -->
             <plugin>
-                <groupId>com.github.os72</groupId>
-                <artifactId>protoc-jar-maven-plugin</artifactId>
-                <version>3.11.4</version>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
                 <executions>
                     <execution>
+                        <id>compile-account-protos</id>
                         <phase>generate-sources</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>compile</goal>
                         </goals>
                         <configuration>
-                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
-                            <addProtoSources>all</addProtoSources>
-                            <includeMavenTypes>direct</includeMavenTypes>
-                            <inputDirectories>
-                                <include>${project.basedir}/src/main/java/com/apiinabox/account/api/dto</include>
-                                <include>${project.basedir}/src/main/java/com/apiinabox/book/api/dto</include>
-                            </inputDirectories>
-                            <outputTargets>
-                                <outputTarget>
-                                        <type>java</type>
-                                        <outputDirectory>target/generated-sources/protobuf</outputDirectory>
-                                </outputTarget>
-                                <outputTarget>
-                                        <type>grpc-java</type>
-                                        <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}</pluginArtifact>
-                                </outputTarget>
-                            </outputTargets>
+                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                            <protoSourceRoot>${project.basedir}/src/main/java/com/apiinabox/account/api/dto</protoSourceRoot>
+                            <outputDirectory>${project.build.directory}/generated-sources/protobuf</outputDirectory>
+                            <clearOutputDirectory>false</clearOutputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-book-protos</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                            <protoSourceRoot>${project.basedir}/src/main/java/com/apiinabox/book/api/dto</protoSourceRoot>
+                            <outputDirectory>${project.build.directory}/generated-sources/protobuf</outputDirectory>
+                            <clearOutputDirectory>false</clearOutputDirectory>
                         </configuration>
                     </execution>
                 </executions>
