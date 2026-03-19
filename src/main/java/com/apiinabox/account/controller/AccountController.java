@@ -1,112 +1,116 @@
 package com.apiinabox.account.controller;
 
-import com.apiinabox.account.api.AccountAPI;
+import com.apiinabox.account.api.AccountApi;
 import com.apiinabox.account.api.dto.AccountProto;
 import com.apiinabox.account.model.Account;
 import com.apiinabox.account.model.AccountMapper;
 import com.apiinabox.account.repository.AccountRepository;
-
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
+/** REST controller implementing the account CRUD and authentication API. */
 @RestController
-public class AccountController implements AccountAPI {
-    private final AccountRepository accountRepository;
-    private final AccountMapper accountMapper;
-    private final PasswordService passwordService;
+public class AccountController implements AccountApi {
+  private final AccountRepository accountRepository;
+  private final AccountMapper accountMapper;
+  private final PasswordService passwordService;
 
-    public AccountController(AccountRepository accountRepository, 
-                           AccountMapper accountMapper,
-                           PasswordService passwordService) {
-        this.accountRepository = accountRepository;
-        this.accountMapper = accountMapper;
-        this.passwordService = passwordService;
+  /** Constructs the controller with its required dependencies. */
+  public AccountController(
+      AccountRepository accountRepository,
+      AccountMapper accountMapper,
+      PasswordService passwordService) {
+    this.accountRepository = accountRepository;
+    this.accountMapper = accountMapper;
+    this.passwordService = passwordService;
+  }
+
+  @Override
+  public ResponseEntity<AccountProto.Account> createAccount(AccountProto.Account accountProto) {
+    Account account = accountMapper.toModel(accountProto);
+    Account savedAccount = accountRepository.save(account);
+    return ResponseEntity.ok(accountMapper.toProto(savedAccount));
+  }
+
+  @Override
+  public ResponseEntity<AccountProto.Account> getAccount(String id) {
+    Account account = accountRepository.findById(id);
+    if (account == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(accountMapper.toProto(account));
+  }
+
+  @Override
+  public ResponseEntity<AccountProto.AccountList> getAllAccounts() {
+    List<Account> accounts = accountRepository.findAll();
+    AccountProto.AccountList.Builder builder = AccountProto.AccountList.newBuilder();
+    accounts.stream().map(accountMapper::toProto).forEach(builder::addAccounts);
+    return ResponseEntity.ok(builder.build());
+  }
+
+  @Override
+  public ResponseEntity<AccountProto.Account> updateAccount(
+      String id, AccountProto.Account accountProto) {
+    Account account = accountMapper.toModel(accountProto);
+    Account updatedAccount = accountRepository.update(account);
+    if (updatedAccount == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(accountMapper.toProto(updatedAccount));
+  }
+
+  @Override
+  public ResponseEntity<Void> deleteAccount(String id) {
+    accountRepository.delete(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public ResponseEntity<Void> setPassword(String id, AccountProto.SetPasswordRequest request) {
+    Account account = accountRepository.findById(id);
+    if (account == null) {
+      return ResponseEntity.notFound().build();
     }
 
-    @Override
-    public ResponseEntity<AccountProto.Account> createAccount(AccountProto.Account accountProto) {
-        Account account = accountMapper.toModel(accountProto);
-        Account savedAccount = accountRepository.save(account);
-        return ResponseEntity.ok(accountMapper.toProto(savedAccount));
-    }
+    String hashedPassword = passwordService.hashPassword(request.getPassword());
+    Account updatedAccount =
+        Account.builder()
+            .id(account.id())
+            .username(account.username())
+            .email(account.email())
+            .fullName(account.fullName())
+            .createdAt(account.createdAt())
+            .passwordHash(hashedPassword)
+            .build();
+    accountRepository.update(updatedAccount);
 
-    @Override
-    public ResponseEntity<AccountProto.Account> getAccount(String id) {
-        Account account = accountRepository.findById(id);
-        if (account == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(accountMapper.toProto(account));
-    }
+    return ResponseEntity.ok().build();
+  }
 
-    @Override
-    public ResponseEntity<AccountProto.AccountList> getAllAccounts() {
-        List<Account> accounts = accountRepository.findAll();
-        AccountProto.AccountList.Builder builder = AccountProto.AccountList.newBuilder();
+  @Override
+  public ResponseEntity<AccountProto.AuthenticateResponse> authenticate(
+      AccountProto.AuthenticateRequest request) {
+    List<Account> accounts = accountRepository.findAll();
+    Account account =
         accounts.stream()
-                .map(accountMapper::toProto)
-                .forEach(builder::addAccounts);
-        return ResponseEntity.ok(builder.build());
+            .filter(a -> a.username().equals(request.getUsername()))
+            .findFirst()
+            .orElse(null);
+
+    if (account == null) {
+      return ResponseEntity.ok(
+          AccountProto.AuthenticateResponse.newBuilder().setAuthenticated(false).build());
     }
 
-    @Override
-    public ResponseEntity<AccountProto.Account> updateAccount(String id, AccountProto.Account accountProto) {
-        Account account = accountMapper.toModel(accountProto);
-        Account updatedAccount = accountRepository.update(account);
-        if (updatedAccount == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(accountMapper.toProto(updatedAccount));
-    }
+    boolean authenticated =
+        passwordService.verifyPassword(request.getPassword(), account.passwordHash());
 
-    @Override
-    public ResponseEntity<Void> deleteAccount(String id) {
-        accountRepository.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    public ResponseEntity<Void> setPassword(String id, AccountProto.SetPasswordRequest request) {
-        Account account = accountRepository.findById(id);
-        if (account == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        String hashedPassword = passwordService.hashPassword(request.getPassword());
-        Account updatedAccount = Account.builder()
-                .id(account.id())
-                .username(account.username())
-                .email(account.email())
-                .fullName(account.fullName())
-                .createdAt(account.createdAt())
-                .passwordHash(hashedPassword)
-                .build();
-        accountRepository.update(updatedAccount);
-        
-        return ResponseEntity.ok().build();
-    }
-
-    @Override
-    public ResponseEntity<AccountProto.AuthenticateResponse> authenticate(AccountProto.AuthenticateRequest request) {
-        List<Account> accounts = accountRepository.findAll();
-        Account account = accounts.stream()
-                .filter(a -> a.username().equals(request.getUsername()))
-                .findFirst()
-                .orElse(null);
-
-        if (account == null) {
-            return ResponseEntity.ok(AccountProto.AuthenticateResponse.newBuilder()
-                    .setAuthenticated(false)
-                    .build());
-        }
-
-        boolean authenticated = passwordService.verifyPassword(request.getPassword(), account.passwordHash());
-        
-        return ResponseEntity.ok(AccountProto.AuthenticateResponse.newBuilder()
-                .setAuthenticated(authenticated)
-                .setAccountId(authenticated ? account.id() : "")
-                .build());
-    }
-} 
+    return ResponseEntity.ok(
+        AccountProto.AuthenticateResponse.newBuilder()
+            .setAuthenticated(authenticated)
+            .setAccountId(authenticated ? account.id() : "")
+            .build());
+  }
+}

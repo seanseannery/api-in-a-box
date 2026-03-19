@@ -19,6 +19,7 @@
     <properties>
         <java.version>25</java.version>
         <protobuf.version>4.28.3</protobuf.version>
+        <checkstyle.version>3.6.0</checkstyle.version>
         <grpc.version>1.60.0</grpc.version>
         <lombok.version>1.18.38</lombok.version>
         <resilience4j.version>2.2.0</resilience4j.version>
@@ -95,11 +96,11 @@
             <version>${protobuf.version}</version>
         </dependency>
 
-        <!-- Protobuf JSON Serialization -->
+        <!-- Protobuf JSON Serialization (used by ProtobufJsonFormatHttpMessageConverter) -->
         <dependency>
-            <groupId>com.hubspot.jackson</groupId>
-            <artifactId>jackson-datatype-protobuf</artifactId>
-            <version>0.9.18</version>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>${protobuf.version}</version>
         </dependency>
 
         <!-- gRPC -->
@@ -162,6 +163,13 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <!-- Suppress sun.misc.Unsafe warnings from Lombok and protobuf (no upstream fix available) -->
+                    <!-- and JVM class-sharing warning from Surefire forked JVM -->
+                    <argLine>
+                        -XX:-UseSharedSpaces
+                        --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
+                        --sun-misc-unsafe-memory-access=allow
+                    </argLine>
                     <reportFormat>plain</reportFormat>
                     <consoleOutputReporter>
                         <disable>true</disable>
@@ -205,6 +213,20 @@
                 </executions>
             </plugin>
 
+
+            <!-- enforce Google Java Style Guide -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.version}</version>
+                <configuration>
+                    <configLocation>google_checks.xml</configLocation>
+                    <failsOnError>true</failsOnError>
+                    <violationSeverity>warning</violationSeverity>
+                    <consoleOutput>true</consoleOutput>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>

@@ -1,4 +1,4 @@
-.PHONY: setup check-dependencies
+.PHONY: setup-local-dev check-dependencies install-githooks
 
 # Detect shell type
 SHELL_TYPE := $(shell echo $$SHELL)
@@ -14,8 +14,15 @@ else
 endif
 
 # Setup development environment
-setup: check-dependencies
+setup-local-dev: check-dependencies install-githooks ## Setup local development environment (macOS)
 	@echo "Development environment setup complete!"
+
+# Configure git to use hooks from .github/.githooks
+install-githooks:
+	@echo "Installing git hooks..."
+	@git config core.hooksPath .github/.githooks
+	@chmod +x .github/.githooks/*
+	@echo "Git hooks installed from .github/.githooks"
 
 # Check and install dependencies
 check-dependencies:
@@ -35,11 +42,12 @@ check-dependencies:
 		fi; \
 	fi
 	@if ! command -v java &> /dev/null || ! java -version 2>&1 | grep -q "version \"25"; then \
-		echo "Installing Java 25 (Temurin)..."; \
-		brew install --cask temurin@25; \
+		echo "Installing Java 25 (Corretto)..."; \
+		brew install --cask corretto25; \
 		mkdir -p ~/.jenv/versions; \
-		jenv add /Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home; \
-		jenv global 25; \
+		jenv add /Library/Java/JavaVirtualMachines/amazon-corretto-25.jdk/Contents/Home; \
+		JAVA25=$$(jenv versions --bare | grep "corretto64-25" | head -1); \
+		jenv global $$JAVA25; \
 		jenv enable-plugin export; \
 		echo "Java 25 installation complete. Please restart your terminal or run: source $(SHELL_CONFIG)"; \
 	fi
@@ -57,4 +65,8 @@ check-dependencies:
 		echo "Installing Docker Compose..."; \
 		brew install docker-compose; \
 	fi
-	@echo "All dependencies are installed and configured." 
+	@if ! command -v google-java-format &> /dev/null; then \
+		echo "Installing google-java-format..."; \
+		brew install google-java-format; \
+	fi
+	@echo "All dependencies are installed and configured."
