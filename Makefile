@@ -18,9 +18,9 @@ lint: ## Auto-format Java sources with google-java-format then validate with che
 	@echo "Formatting Java sources..."
 	@find src -name "*.java" | xargs google-java-format --replace
 	@echo "Running checkstyle..."
-	@mvn checkstyle:check
+    @mvn checkstyle:check
 
-docker-build: ## Build Docker image
+docker-build: ## Build package and the associated Docker image
 	@echo "Building Docker image..."
 	@docker-compose -f infra/docker-compose.yml build
 
