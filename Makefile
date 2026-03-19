@@ -1,67 +1,54 @@
 
-.PHONY: build run all docker-build docker-run docker-stop attach-docker docker-logs
+.PHONY: build run all docker-build docker-run docker-stop docker-shell docker-logs open-swagger lint test setup-local-dev help
 
 # Default port
 PORT ?= 8080
 
-# Point Maven at Temurin 25 if installed; otherwise fall back to existing JAVA_HOME
-TEMURIN25 := /Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home
-JAVA_HOME := $(shell [ -d "$(TEMURIN25)" ] && echo "$(TEMURIN25)" || echo "$(JAVA_HOME)")
-export JAVA_HOME
-
 # Default target
-all: build run
+all: build run ## Clean, build and run the application (default)
 
-# Build the project
-build:
+build: ## Build the project (mvn clean package)
 	@echo "Building the project..."
-	@mvn clean package
+	@mvn clean && mvn package
 
-# Build Docker image
-docker-build:
+test: ## Run all unit and integration tests
+	@mvn clean && mvn test
+
+lint: ## Auto-format Java sources with google-java-format then validate with checkstyle
+	@echo "Formatting Java sources..."
+	@find src -name "*.java" | xargs google-java-format --replace
+	@echo "Running checkstyle..."
+	@mvn checkstyle:check
+
+docker-build: ## Build Docker image
 	@echo "Building Docker image..."
 	@docker-compose -f infra/docker-compose.yml build
 
-# Run the application using Docker
-run: docker-build
+run: docker-build ## Build and run the application in Docker on $(PORT)
 	@echo "Running the application in Docker..."
 	@PORT=$(PORT) docker-compose -f infra/docker-compose.yml up -d
 	@sleep 5
-	open-swagger
-	docker-logs
+	$(MAKE) open-swagger
+	$(MAKE) docker-logs
 
-# Show logs
-docker-logs:
+docker-logs: ## Show container logs
 	@docker-compose -f infra/docker-compose.yml logs -f
 
-open-swagger:
+open-swagger: ## Open Swagger UI in browser
 	@echo "Opening Swagger UI in browser..."
 	@open http://localhost:$(PORT)/swagger-ui.html
 
-# Attach to the running container's shell
-docker-shell:
+docker-shell: ## Attach to the running container's shell
 	@echo "Attaching to container shell..."
 	@docker exec -it $$(docker-compose -f infra/docker-compose.yml ps -q api) /bin/bash
 
-# Stop the Docker containers
-docker-stop:
+docker-stop: ## Stop Docker containers
 	@echo "Stopping Docker containers..."
 	@docker-compose -f infra/docker-compose.yml down
 
 # Include setup makefile
 include infra/local-setup.mk
 
-# Help command
-# see infra/local-setup.mk for setup command implementation and code
-help:
+help: ## Show this help message
 	@echo "Available commands:"
-	@echo "  make setup         - Setup development environment (macOS)"
-	@echo "  make build         - Build the project"
-	@echo "  make docker-build  - Build Docker image"
-	@echo "  make run           - Build and run the application in Docker (8080)"
-	@echo "  make docker-logs   - Show container logs"
-	@echo "  make open-swagger  - Open Swagger UI in browser"
-	@echo "  make docker-shell  - Attach to the running container's shell"
-	@echo "  make docker-stop   - Stop Docker containers"
-	@echo "  make all           - Clean, build and run the application (default)"
-	@echo "  make help          - Show this help message" 
+	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  make %-20s - %s\n", $$1, $$2}'

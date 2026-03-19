@@ -3,19 +3,20 @@ package com.apiinabox.account.controller;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/** Handles BCrypt password hashing and verification. */
 @Service
 public class PasswordService {
-    private final BCryptPasswordEncoder passwordEncoder;
+  private final BCryptPasswordEncoder passwordEncoder;
 
-    public PasswordService() {
-        this.passwordEncoder = new BCryptPasswordEncoder();
-    }
+  public PasswordService() {
+    this.passwordEncoder = new BCryptPasswordEncoder();
+  }
 
-    public String hashPassword(String password) {
-        return passwordEncoder.encode(password);
-    }
+  public String hashPassword(String password) {
+    return passwordEncoder.encode(password);
+  }
 
-    public boolean verifyPassword(String rawPassword, String hashedPassword) {
-        return passwordEncoder.matches(rawPassword, hashedPassword);
-    }
-} 
+  public boolean verifyPassword(String rawPassword, String hashedPassword) {
+    return passwordEncoder.matches(rawPassword, hashedPassword);
+  }
+}

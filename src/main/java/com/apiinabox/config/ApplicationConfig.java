@@ -1,28 +1,28 @@
-
 package com.apiinabox.config;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hubspot.jackson.datatype.protobuf.ProtobufModule;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.protobuf.ProtobufJsonFormatHttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import io.swagger.v3.core.jackson.ModelResolver;
-
+/** Spring application configuration beans. */
 @Configuration
-public class ApplicationConfig {
+public class ApplicationConfig implements WebMvcConfigurer {
 
-    // This is to fix the issue with the protobuf module and the swagger ui endless
-    // loading
-    @Bean
-    public ObjectMapper objectMapper() {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new ProtobufModule());
-        return objectMapper;
-    }
+  /**
+   * Registers protobuf JSON serialization support so Spring MVC can serialize and deserialize
+   * protobuf message objects as JSON using protobuf's native JsonFormat.
+   */
+  @Bean
+  public ProtobufJsonFormatHttpMessageConverter protobufJsonFormatHttpMessageConverter() {
+    return new ProtobufJsonFormatHttpMessageConverter();
+  }
 
-    @Bean
-    public ModelResolver modelResolver(final ObjectMapper objectMapper) {
-        return new ModelResolver(objectMapper);
-    }
+  /** Defaults content negotiation to JSON so clients without an Accept header get JSON. */
+  @Override
+  public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+    configurer.defaultContentType(MediaType.APPLICATION_JSON);
+  }
 }

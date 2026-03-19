@@ -6,7 +6,7 @@ This project implements an example backend REST API service that can be copied a
 
 ## Technologies Used
 
-- **Spring Boot 3.5.0** - Core framework with Java 21
+- **Spring Boot 3.5.0** - Core framework with Java 25
 - **Spring Security** - OAuth2/JWT authentication and authorization
 - **Protocol Buffers** - API contract definitions and serialization (DTOs)
 - **Docker & Docker Compose** - Containerization and local development
@@ -47,12 +47,12 @@ This project implements an example backend REST API service that can be copied a
 Run the automated setup command to install all required dependencies:
 
 ```bash
-make setup
+make setup-local-dev
 ```
 
 This will automatically install:
 - Homebrew (if not present)
-- Java 21 with jenv for version management
+- Java 25 with jenv for version management
 - Maven
 - Docker and Docker Compose
 
@@ -64,7 +64,7 @@ source ~/.zshrc  # or ~/.bashrc depending on your shell
 ### Manual Verification
 Verify your environment is ready:
 ```bash
-java -version    # Should show Java 21
+java -version    # Should show Java 25
 mvn -version     # Should show Maven
 docker --version # Should show Docker
 ```
@@ -105,16 +105,17 @@ make docker-stop
 
 ### Development Commands
 ```bash
-	  make setup         - Setup development environment (macOS)
-	  make build         - Build the project
-	  make docker-build  - Build Docker image
-	  make run           - Build and run the application in Docker (8080)
-	  make docker-logs   - Show container logs
-	  make open-swagger  - Open Swagger UI in browser
-	  make docker-shell  - Attach to the running container's shell
-	  make docker-stop   - Stop Docker containers
-	  make all           - Clean, build and run the application (default)
-	  make help          - Show this help message"
+make help               # List all available commands
+make setup-local-dev    # Setup local development environment (macOS)
+make build              # Build the project (mvn clean package)
+make test               # Run all unit and integration tests
+make lint               # Run checkstyle linter
+make run                # Build and run the application in Docker on port 8080
+make docker-build       # Build Docker image
+make docker-logs        # Show container logs
+make docker-shell       # Attach to the running container's shell
+make docker-stop        # Stop Docker containers
+make open-swagger       # Open Swagger UI in browser
 ```
 ## API Examples
 

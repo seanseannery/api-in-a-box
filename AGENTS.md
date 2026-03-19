@@ -6,16 +6,19 @@ This project implements an example backend REST API service that can be copied a
 # Commands
 
 ```bash
-make build         # mvn clean package
-make run           # build Docker image and run on port 8080
-make docker-stop   # stop running containers
-make docker-logs   # view container logs
-make docker-shell  # access running container shell
+make setup-local-dev  # setup local development environment (macOS)
+make build            # mvn clean package
+make test             # run all unit and integration tests
+make lint             # run checkstyle linter
+make run              # build Docker image and run on port 8080
+make docker-stop      # stop running containers
+make docker-logs      # view container logs
+make docker-shell     # access running container shell
+make help             # list all available commands
 ```
 
-Tests:
+Single test runs (use mvn directly):
 ```bash
-mvn test                                              # all tests
 mvn test -Dtest=RateLimitServiceTest                  # single class
 mvn test -Dtest=RateLimitServiceTest#testApiRateLimit # single method
 ```

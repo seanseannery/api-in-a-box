@@ -18,16 +18,17 @@ This will install required dependencies for local development on mac
 All common build and test functionality should be provided out of the box with `make` command as defined in `./Makefile`
 
 ```bash
-	  make setup         - Setup development environment (macOS)
-	  make build         - Build the project
-	  make docker-build  - Build Docker image
-	  make run           - Build and run the application in Docker (8080)
-	  make docker-logs   - Show container logs
-	  make open-swagger  - Open Swagger UI in browser
-	  make docker-shell  - Attach to the running container's shell
-	  make docker-stop   - Stop Docker containers
-	  make all           - Clean, build and run the application (default)
-	  make help          - Show this help message"
+make help               # List all available commands
+make setup-local-dev    # Setup local development environment (macOS)
+make build              # Build the project (mvn clean package)
+make test               # Run all unit and integration tests
+make lint               # Run checkstyle linter
+make run                # Build and run the application in Docker on port 8080
+make docker-build       # Build Docker image
+make docker-logs        # Show container logs
+make docker-shell       # Attach to the running container's shell
+make docker-stop        # Stop Docker containers
+make open-swagger       # Open Swagger UI in browser
 ```
 
 
@@ -46,7 +47,7 @@ All common build and test functionality should be provided out of the box with `
 
 ### Style and Formatting
 
-- Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) to the best of your effort
+- Follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) to the best of your effort
 - APIs and DTOs should be versioned. Initial development uses V1; increment the version for backward-incompatible changes.
 - K.I.S.S - readability over micro-optimization: clear code is more important than saving microseconds
 - Keep functions focused; if a function needs a comment to explain what it does, consider splitting it
@@ -54,8 +55,30 @@ All common build and test functionality should be provided out of the box with `
 - Keep cyclomatic complexity low: prefer extracting new functions over deeply nested conditionals or code more than 3 levels deep
 - Do not use "Manager" or "Service" in domain class names — choose a name that clearly describes what the class does, or break it apart until the methods are more cohesive
 - Use streams when mapping or filtering collections; use standard loops for straightforward iteration
-- Run `mvn checkstyle:check` before committing — CI will catch unformatted code
+- Run `make lint` before committing — this auto-formats with `google-java-format` then validates with Checkstyle. CI will reject violations.
 - Always write automated tests for your contribution. While there is no explicit coverage goal, test coverage should never decrease.
+
+### IDE Setup (VSCode)
+
+Install these extensions for real-time feedback:
+
+1. **[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack)** — Language support, IntelliSense, and debugging (`vscjava.vscode-java-pack`)
+2. **[SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode)** — Highlights style violations, code smells, and bugs inline as you type (`SonarSource.sonarlint-vscode`)
+
+SonarLint works out of the box with no configuration — it applies its built-in Java ruleset automatically on open files.
+
+To auto-format on save, add to `.vscode/settings.json`:
+```json
+{
+  "editor.formatOnSave": true,
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  },
+  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml"
+}
+```
+
+> **Note:** SonarLint catches code quality and style issues inline. `make lint` (Checkstyle) is still the authoritative check before committing — run it before opening a PR.
 
 ### Testing Best Practices
 
@@ -127,8 +150,9 @@ docs: add contributing guide
 ### Pull Requests
 
 - One logical change per PR — keep diffs focused and prefer small, reviewable PRs over large ones
+- **Propose and get approval for major refactors before implementing them** — open a discussion or draft PR describing the change first
 - PR title should follow the same Conventional Commits format as the commit message
-- PR description contents should Include a short description of *why* the change is needed, not just what it does as well as a list of any new dependecies added and tests added.
+- PR description contents should include a short description of *why* the change is needed, not just what it does, as well as a list of any new dependencies added and tests added.
 - Ensure `mvn test` and `mvn checkstyle:check` pass locally before opening a PR or CI automation will auto-reject your PR.
 
 # Code Review Feedback & Community Participation
@@ -148,10 +172,6 @@ Reviewers use [Conventional Comments](https://conventionalcomments.org/) to sign
 | `praise:` | Positive callout |
 
 ---
-
-
-
-
 
 
 

@@ -1,13 +1,14 @@
 # Build stage
-FROM maven:3.9-eclipse-temurin-25 as build
+FROM maven:3.9-amazoncorretto-25 AS build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn verify clean --fail-never
+# Pre-download dependencies for layer caching before source is available
+RUN mvn dependency:go-offline -q
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
 # Run stage
-FROM eclipse-temurin:25-jre
+FROM amazoncorretto:25-al2023
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 ARG PORT=8080
